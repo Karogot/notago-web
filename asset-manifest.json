@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/notago-web/static/css/main.7c91194a.css",
+    "main.js": "/notago-web/static/js/main.71f095a0.js",
+    "index.html": "/notago-web/index.html",
+    "main.7c91194a.css.map": "/notago-web/static/css/main.7c91194a.css.map",
+    "main.71f095a0.js.map": "/notago-web/static/js/main.71f095a0.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7c91194a.css",
+    "static/js/main.71f095a0.js"
+  ]
+}
