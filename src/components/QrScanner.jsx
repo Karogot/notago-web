@@ -27,10 +27,9 @@ const QrScanner = ({ onScanSuccess }) => {
   const startScanning = () => {
     if (!scanner) return;
 
-    const config = { 
-      fps: 10, 
-      qrbox: { width: 250, height: 250 },
-      aspectRatio: 1.0
+    onst config = { 
+      fps: 20, 
+      disableFlip: false
     };
 
     scanner.start(
