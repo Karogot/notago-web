@@ -9,19 +9,19 @@ function NoteDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadNoteDetails = async () => {
+      try {
+        const noteData = await getNoteById(parseInt(id, 10));
+        setNote(noteData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao carregar detalhes da nota:', error);
+        setLoading(false);
+      }
+    };
+
     loadNoteDetails();
   }, [id]);
-
-  const loadNoteDetails = async () => {
-    try {
-      const noteData = await getNoteById(parseInt(id));
-      setNote(noteData);
-      setLoading(false);
-    } catch (error) {
-      console.error('Erro ao carregar detalhes da nota:', error);
-      setLoading(false);
-    }
-  };
 
   const handleExportCsv = () => {
     if (note) {

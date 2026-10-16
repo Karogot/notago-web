@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllNotes, getMonthlyTotal } from '../services/storageService';
+import { getAllNotes } from '../services/storageService';
 import { exportNotesAsCsv } from '../services/csvService';
 
 function History() {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import QrScanner from '../components/QrScanner';
 import { fetchNoteData } from '../services/sefazService';
@@ -32,8 +32,8 @@ function Scanner() {
       }
       
       // Salvar a nota no armazenamento local
-      const noteId = await saveNote(noteData);
-      
+      await saveNote(noteData);
+
       // Mostrar mensagem de sucesso
       setSuccess(true);
       setProcessing(false);
