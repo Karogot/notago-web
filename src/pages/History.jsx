@@ -101,9 +101,9 @@ function History() {
               </div>
             ) : (
               notes.map(note => (
-                <Link 
-                  to={`/note/${note.id}`} 
-                  key={note.id}
+                <Link
+                  to={`/note/${note.localId}`}
+                  key={note.localId}
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <div className="card note-item">

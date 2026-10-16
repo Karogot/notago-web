@@ -50,25 +50,28 @@ function Scanner() {
     }
   };
 
-  // Função para extrair a chave de acesso do QR code
+  // Extrai a chave de acesso (44 dígitos) do conteúdo real do QR code da NFC-e.
+  // O QR code nacional de NFC-e é uma URL como:
+  //   https://www.fazenda.rj.gov.br/nfce/consulta?p=33260461...4672|2|1|1|<hash>
+  // então a chave normalmente vem no parâmetro "p=" (ou "chave="), separada por "|".
   const extractAccessKey = (qrCodeData) => {
-    // Implementação simplificada - em um caso real, precisaria de regex mais robusta
-    // para extrair a chave de acesso de diferentes formatos de QR code
-    
-    // Exemplo: se o QR code contém a chave diretamente
-    if (/^\d{44}$/.test(qrCodeData)) {
-      return qrCodeData;
-    }
-    
-    // Exemplo: se o QR code contém uma URL com a chave como parâmetro
-    const match = qrCodeData.match(/[?&]chave=(\d{44})/);
-    if (match) {
-      return match[1];
-    }
-    
-    // Simulação para desenvolvimento
-    // Na versão real, retornaria null se não encontrasse a chave
-    return '33250533130543002045650350002353891004729820';
+    if (!qrCodeData) return null;
+
+    const pMatch = qrCodeData.match(/[?&]p=(\d{44})/);
+    if (pMatch) return pMatch[1];
+
+    const chaveMatch = qrCodeData.match(/[?&]chave=(\d{44})/);
+    if (chaveMatch) return chaveMatch[1];
+
+    // QR code com a chave pura, com ou sem espaços (ex.: texto impresso do cupom).
+    const digitsOnly = qrCodeData.replace(/\s/g, '');
+    if (/^\d{44}$/.test(digitsOnly)) return digitsOnly;
+
+    // Último recurso: procura 44 dígitos seguidos em qualquer lugar do texto.
+    const anyKeyMatch = qrCodeData.replace(/\s/g, '').match(/\d{44}/);
+    if (anyKeyMatch) return anyKeyMatch[0];
+
+    return null;
   };
 
   return (

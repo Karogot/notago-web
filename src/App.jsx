@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Scanner from './pages/Scanner';
 import History from './pages/History';
 import NoteDetail from './pages/NoteDetail';
+import ShoppingList from './pages/ShoppingList';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/scanner" element={<Scanner />} />
         <Route path="/history" element={<History />} />
         <Route path="/note/:id" element={<NoteDetail />} />
+        <Route path="/lista" element={<ShoppingList />} />
       </Routes>
     </Router>
   );

@@ -20,9 +20,14 @@ function Home() {
           Escanear Nova Nota
         </Link>
         
-        <Link to="/history" className="btn btn-secondary">
+        <Link to="/history" className="btn btn-secondary" style={{ marginBottom: '20px' }}>
           <span style={{ marginRight: '10px' }}>📋</span>
           Ver Histórico
+        </Link>
+
+        <Link to="/lista" className="btn btn-secondary">
+          <span style={{ marginRight: '10px' }}>🛒</span>
+          Minha Lista de Compras
         </Link>
       </div>
     </div>

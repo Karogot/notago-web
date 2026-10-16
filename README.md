@@ -1,80 +1,93 @@
-# NotaGo Web - Documentação
+# NotaGo
 
-## Visão Geral
-NotaGo Web é uma aplicação web progressiva (PWA) que permite escanear QR codes de notas fiscais eletrônicas, extrair seus dados, armazenar localmente e exportar em formato CSV. Desenvolvida para ser acessada diretamente pelo navegador do celular, sem necessidade de instalação.
+App Android que lê o QR code da nota fiscal (NFC-e), guarda os produtos e preços num
+acervo compartilhado, e ajuda a descobrir onde cada produto está mais barato — incluindo
+em qual mercado sai mais barato comprar toda a lista de uma vez.
 
-## Funcionalidades Principais
-1. **Escaneamento de QR Code**: Utiliza a câmera do celular para ler QR codes de notas fiscais.
-2. **Busca de Dados**: Extrai informações da nota fiscal a partir da chave de acesso.
-3. **Armazenamento Local**: Salva os dados das notas no próprio dispositivo.
-4. **Histórico com Resumo Mensal**: Exibe todas as notas salvas e calcula o total de gastos do mês.
-5. **Detalhes da Nota**: Mostra informações detalhadas de cada nota fiscal.
-6. **Exportação CSV**: Permite exportar os dados para planilhas.
+## Por que é um app Android (Capacitor) e não só um site
 
-## Estrutura do Projeto
+A consulta real da nota fiscal no portal da SEFAZ só funciona a partir do IP residencial/móvel
+do próprio usuário — a SEFAZ-RJ bloqueia acessos vindos de IP de datacenter/nuvem (testado e
+confirmado com chaves de acesso reais). Por isso não existe backend fazendo essa consulta: o
+app abre a página oficial da SEFAZ dentro de uma WebView nativa embutida (usando
+[Capacitor](https://capacitorjs.com/) + [@capgo/capacitor-inappbrowser](https://github.com/Cap-go/capacitor-inappbrowser))
+e lê os dados renderizados ali, usando o IP real do celular.
+
+iPhone fica para depois: compilar a versão iOS da Capacitor exige Xcode, que só roda em Mac.
+
+## Funcionalidades
+1. **Escaneamento de QR Code** da NFC-e, com leitura real (não simulada) via WebView embutida.
+2. **Acervo compartilhado** (Supabase/Postgres): cada nota lida alimenta uma base de preços por
+   produto/loja usada por todos os usuários do app.
+3. **Histórico pessoal** salvo localmente (Dexie/IndexedDB), com resumo mensal de gastos.
+4. **Comparador de preços** (em desenvolvimento): envie sua lista de compras e descubra o menor
+   preço por item e em qual mercado sai mais barato comprar tudo.
+5. **Exportação CSV** do histórico pessoal.
+
+## Estrutura do projeto
 ```
 notago-web/
-├── public/                  # Arquivos estáticos
-│   ├── index.html           # Página HTML principal
-│   └── manifest.json        # Configuração PWA
-├── src/                     # Código fonte
-│   ├── components/          # Componentes reutilizáveis
-│   │   └── QrScanner.jsx    # Componente de scanner QR
-│   ├── pages/               # Páginas principais
-│   │   ├── Home.jsx         # Tela inicial (botões)
-│   │   ├── Scanner.jsx      # Tela de scanner
-│   │   ├── History.jsx      # Tela de histórico
-│   │   └── NoteDetail.jsx   # Tela de detalhes da nota
-│   ├── services/            # Serviços e lógica de negócio
-│   │   ├── sefazService.js  # Serviço para buscar dados na SEFAZ
-│   │   ├── storageService.js # Serviço para armazenamento local
-│   │   └── csvService.js    # Serviço para exportação CSV
-│   ├── App.jsx              # Componente principal e rotas
-│   ├── index.jsx            # Ponto de entrada da aplicação
-│   └── styles.css           # Estilos globais
-└── package.json             # Dependências e scripts
+├── android/                  # Projeto nativo Android gerado pelo Capacitor
+├── supabase/
+│   └── schema.sql            # Schema do acervo compartilhado (rodar uma vez no Supabase)
+├── public/
+├── src/
+│   ├── components/
+│   │   └── QrScanner.jsx
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── Scanner.jsx
+│   │   ├── History.jsx
+│   │   └── NoteDetail.jsx
+│   ├── services/
+│   │   ├── nfceScraperService.js   # Lê a nota real via WebView embutida (Capacitor)
+│   │   ├── sefazService.js         # Ponto de entrada usado pelas telas
+│   │   ├── storageService.js       # Histórico local (Dexie) + sync com Supabase
+│   │   ├── supabaseClient.js
+│   │   ├── productNormalization.js # Normaliza nomes de produto para comparar entre notas
+│   │   └── csvService.js
+│   ├── App.jsx
+│   ├── index.jsx
+│   └── styles.css
+├── capacitor.config.ts
+└── package.json
 ```
 
-## Tecnologias Utilizadas
-- **React**: Framework JavaScript para construção da interface
-- **React Router**: Para navegação entre páginas
-- **HTML5 QR Code**: Biblioteca para leitura de QR codes
-- **Dexie.js**: Wrapper para IndexedDB (armazenamento local)
-- **GitHub Pages**: Para hospedagem gratuita
+## Tecnologias
+- **React** (Create React App)
+- **Capacitor** — empacota o app React num app Android real
+- **@capgo/capacitor-inappbrowser** — WebView embutida usada para ler a página real da SEFAZ
+- **html5-qrcode** — leitura do QR code pela câmera
+- **Dexie.js** — histórico pessoal local (IndexedDB)
+- **Supabase (Postgres)** — acervo compartilhado de preços
 
-## Instruções de Publicação
-1. Clone o repositório para sua máquina local:
-   ```
-   git clone https://github.com/Karogot/notago-web.git
-   cd notago-web
-   ```
+## Configuração do ambiente de desenvolvimento
 
-2. Instale as dependências:
+1. Instale as dependências:
    ```
    npm install
    ```
-
-3. Publique no GitHub Pages:
+2. Copie `.env.example` para `.env` e preencha com os dados do seu projeto Supabase
+   (crie uma conta grátis em supabase.com, depois rode `supabase/schema.sql` no SQL Editor
+   do seu projeto).
+3. Gere o build web e sincronize com o projeto Android:
    ```
-   npm run deploy
+   npm run build
+   npx cap sync android
    ```
-
-4. Acesse o site:
+4. Compile o app (precisa de JDK 17 e Android SDK configurados — ver `android/local.properties`):
    ```
-   https://karogot.github.io/notago-web
+   cd android
+   ./gradlew assembleDebug
    ```
+   O APK fica em `android/app/build/outputs/apk/debug/app-debug.apk`. Instale no celular via
+   USB (`adb install`) ou copiando o arquivo.
 
-## Limitações e Considerações
-- A versão atual simula a busca de dados na SEFAZ, pois o acesso real requer um backend para contornar limitações de CORS.
-- O armazenamento é feito localmente no navegador, então os dados não são sincronizados entre dispositivos.
-- Para uso em produção, seria recomendável implementar um backend real para busca de dados na SEFAZ.
-
-## Próximos Passos Sugeridos
-1. Implementar um backend real para busca de dados na SEFAZ
-2. Adicionar autenticação de usuários para salvar dados na nuvem
-3. Melhorar a análise de gastos com gráficos e categorização
-4. Implementar notificações e lembretes
-
----
-
-Desenvolvido por Manus para atender às necessidades específicas do usuário, com foco em simplicidade, funcionalidade e design limpo.
+## Limitações atuais
+- Só o estado do **RJ** tem o scraper implementado (`src/services/nfceScraperService.js`).
+  Outros estados usam portais diferentes e ainda não foram mapeados.
+- O parser do texto da página da SEFAZ-RJ ainda não foi validado contra uma consulta real
+  renderizada (o ambiente de desenvolvimento é bloqueado pelo filtro de IP da SEFAZ). Precisa
+  de ajuste fino no primeiro teste em um celular real.
+- Comparador de preços (lista de compras) ainda não implementado.
+- iPhone não compila sem acesso a um Mac com Xcode.
